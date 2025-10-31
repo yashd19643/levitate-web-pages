@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ParticleBackground from '@/components/ParticleBackground';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import Navigation from '@/components/Navigation';
+import { Send, Bot, User, Sparkles, Zap } from 'lucide-react';
 
 interface Message {
   id: number;
@@ -55,15 +56,20 @@ export default function Chatbot() {
 
   return (
     <div className="min-h-screen py-12 relative">
+      <Navigation />
       <ParticleBackground />
       
-      <div className="container relative z-10">
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+      <div className="container relative z-10 px-4 pt-20">
+        <div className="text-center mb-16 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-full mb-6">
+            <Zap className="w-4 h-4 text-secondary" />
+            <span className="text-sm font-medium text-secondary">24/7 AI Assistant</span>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
             Agri Assistant
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Your personalized digital guide for all farming queries
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Your personalized AI-powered digital guide for all farming queries, available anytime, anywhere
           </p>
         </div>
 

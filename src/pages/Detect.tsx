@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ParticleBackground from '@/components/ParticleBackground';
-import { Camera, Shield, AlertCircle, CheckCircle, Leaf } from 'lucide-react';
+import Navigation from '@/components/Navigation';
+import { Camera, Shield, AlertCircle, CheckCircle, Leaf, Sparkles } from 'lucide-react';
 
 export default function Detect() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -23,15 +24,20 @@ export default function Detect() {
 
   return (
     <div className="min-h-screen py-12 relative">
+      <Navigation />
       <ParticleBackground />
       
-      <div className="container relative z-10">
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-destructive to-accent bg-clip-text text-transparent">
+      <div className="container relative z-10 px-4 pt-20">
+        <div className="text-center mb-16 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-destructive/10 rounded-full mb-6">
+            <Sparkles className="w-4 h-4 text-destructive" />
+            <span className="text-sm font-medium text-destructive">AI Vision Technology</span>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-destructive to-accent bg-clip-text text-transparent">
             Disease Detection
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Upload an image of your crop to instantly detect diseases and get treatment advice
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Upload an image of your crop to instantly detect diseases using advanced computer vision and get expert treatment recommendations
           </p>
         </div>
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ParticleBackground from '@/components/ParticleBackground';
-import { Sprout, MapPin, Calendar, Leaf } from 'lucide-react';
+import Navigation from '@/components/Navigation';
+import { Sprout, MapPin, Calendar, Leaf, Sparkles } from 'lucide-react';
 
 export default function Recommend() {
   const [formData, setFormData] = useState({
@@ -52,15 +53,20 @@ export default function Recommend() {
 
   return (
     <div className="min-h-screen py-12 relative">
+      <Navigation />
       <ParticleBackground />
       
-      <div className="container relative z-10">
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+      <div className="container relative z-10 px-4 pt-20">
+        <div className="text-center mb-16 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-6">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium text-primary">AI-Powered Recommendations</span>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Crop Recommendation System
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Get personalized crop suggestions based on your soil type, location, and season
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Get personalized crop suggestions powered by machine learning based on your soil type, location, and season
           </p>
         </div>
 
