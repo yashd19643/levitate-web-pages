@@ -1,7 +1,66 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ParticleBackground from '@/components/ParticleBackground';
 import Navigation from '@/components/Navigation';
 import { Sprout, MapPin, Calendar, Leaf, Sparkles } from 'lucide-react';
+
+// Region-wise districts and cities data
+const locationData: Record<string, Record<string, string[]>> = {
+  north: {
+    'Delhi': ['New Delhi', 'Dwarka', 'Rohini', 'Saket'],
+    'Punjab - Amritsar': ['Amritsar City', 'Ajnala', 'Baba Bakala'],
+    'Punjab - Ludhiana': ['Ludhiana City', 'Khanna', 'Jagraon'],
+    'Haryana - Karnal': ['Karnal City', 'Gharaunda', 'Nilokheri'],
+    'Haryana - Hisar': ['Hisar City', 'Hansi', 'Fatehabad'],
+    'Uttar Pradesh - Lucknow': ['Lucknow City', 'Malihabad', 'Mohanlalganj'],
+    'Uttar Pradesh - Varanasi': ['Varanasi City', 'Chandauli', 'Mirzapur'],
+    'Uttar Pradesh - Meerut': ['Meerut City', 'Modinagar', 'Ghaziabad'],
+    'Rajasthan - Jaipur': ['Jaipur City', 'Amber', 'Sanganer'],
+    'Rajasthan - Jodhpur': ['Jodhpur City', 'Phalodi', 'Bilara'],
+    'Uttarakhand - Dehradun': ['Dehradun City', 'Mussoorie', 'Rishikesh'],
+    'Himachal Pradesh - Shimla': ['Shimla City', 'Kufri', 'Chail'],
+  },
+  south: {
+    'Tamil Nadu - Chennai': ['Chennai City', 'Tambaram', 'Avadi'],
+    'Tamil Nadu - Coimbatore': ['Coimbatore City', 'Tiruppur', 'Pollachi'],
+    'Tamil Nadu - Madurai': ['Madurai City', 'Dindigul', 'Theni'],
+    'Karnataka - Bangalore': ['Bangalore City', 'Whitefield', 'Electronic City'],
+    'Karnataka - Mysore': ['Mysore City', 'Mandya', 'Hassan'],
+    'Karnataka - Belgaum': ['Belgaum City', 'Dharwad', 'Hubli'],
+    'Kerala - Thiruvananthapuram': ['Trivandrum City', 'Neyyattinkara', 'Attingal'],
+    'Kerala - Kochi': ['Kochi City', 'Ernakulam', 'Aluva'],
+    'Andhra Pradesh - Vijayawada': ['Vijayawada City', 'Guntur', 'Tenali'],
+    'Andhra Pradesh - Visakhapatnam': ['Vizag City', 'Anakapalli', 'Bheemunipatnam'],
+    'Telangana - Hyderabad': ['Hyderabad City', 'Secunderabad', 'Cyberabad'],
+    'Telangana - Warangal': ['Warangal City', 'Hanamkonda', 'Kazipet'],
+  },
+  east: {
+    'West Bengal - Kolkata': ['Kolkata City', 'Howrah', 'Salt Lake'],
+    'West Bengal - Darjeeling': ['Darjeeling Town', 'Kalimpong', 'Kurseong'],
+    'West Bengal - Murshidabad': ['Berhampore', 'Jangipur', 'Lalbag'],
+    'Bihar - Patna': ['Patna City', 'Danapur', 'Hajipur'],
+    'Bihar - Gaya': ['Gaya City', 'Bodh Gaya', 'Sherghati'],
+    'Bihar - Muzaffarpur': ['Muzaffarpur City', 'Sitamarhi', 'Sheohar'],
+    'Odisha - Bhubaneswar': ['Bhubaneswar City', 'Cuttack', 'Puri'],
+    'Odisha - Sambalpur': ['Sambalpur City', 'Jharsuguda', 'Bargarh'],
+    'Jharkhand - Ranchi': ['Ranchi City', 'Jamshedpur', 'Dhanbad'],
+    'Assam - Guwahati': ['Guwahati City', 'Dispur', 'Beltola'],
+    'Assam - Jorhat': ['Jorhat City', 'Sibsagar', 'Golaghat'],
+  },
+  west: {
+    'Maharashtra - Mumbai': ['Mumbai City', 'Thane', 'Navi Mumbai'],
+    'Maharashtra - Pune': ['Pune City', 'Pimpri-Chinchwad', 'Lonavala'],
+    'Maharashtra - Nagpur': ['Nagpur City', 'Wardha', 'Chandrapur'],
+    'Maharashtra - Nashik': ['Nashik City', 'Malegaon', 'Ozar'],
+    'Gujarat - Ahmedabad': ['Ahmedabad City', 'Gandhinagar', 'Sanand'],
+    'Gujarat - Surat': ['Surat City', 'Navsari', 'Bardoli'],
+    'Gujarat - Rajkot': ['Rajkot City', 'Morbi', 'Gondal'],
+    'Gujarat - Vadodara': ['Vadodara City', 'Anand', 'Bharuch'],
+    'Goa - North Goa': ['Panaji', 'Mapusa', 'Calangute'],
+    'Goa - South Goa': ['Margao', 'Vasco', 'Ponda'],
+    'Madhya Pradesh - Bhopal': ['Bhopal City', 'Vidisha', 'Raisen'],
+    'Madhya Pradesh - Indore': ['Indore City', 'Dewas', 'Ujjain'],
+  },
+};
 
 export default function Recommend() {
   const [formData, setFormData] = useState({
@@ -11,9 +70,33 @@ export default function Recommend() {
     city: '',
     season: '',
   });
+  const [availableDistricts, setAvailableDistricts] = useState<string[]>([]);
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [recommendation, setRecommendation] = useState<any>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // Update districts when region changes
+  useEffect(() => {
+    if (formData.region && locationData[formData.region]) {
+      setAvailableDistricts(Object.keys(locationData[formData.region]));
+      setFormData(prev => ({ ...prev, district: '', city: '' }));
+      setAvailableCities([]);
+    } else {
+      setAvailableDistricts([]);
+      setAvailableCities([]);
+    }
+  }, [formData.region]);
+
+  // Update cities when district changes
+  useEffect(() => {
+    if (formData.region && formData.district && locationData[formData.region]?.[formData.district]) {
+      setAvailableCities(locationData[formData.region][formData.district]);
+      setFormData(prev => ({ ...prev, city: '' }));
+    } else {
+      setAvailableCities([]);
+    }
+  }, [formData.district]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -186,27 +269,41 @@ export default function Recommend() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">District</label>
-                <input
-                  type="text"
+                <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  District
+                </label>
+                <select
                   name="district"
                   value={formData.district}
                   onChange={handleChange}
-                  placeholder="Enter district"
-                  className="w-full px-4 py-3 bg-input border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                />
+                  disabled={!formData.region}
+                  className="w-full px-4 py-3 bg-input border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">{formData.region ? 'Select District' : 'Select Region First'}</option>
+                  {availableDistricts.map(district => (
+                    <option key={district} value={district}>{district}</option>
+                  ))}
+                </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">City</label>
-                <input
-                  type="text"
+                <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  City
+                </label>
+                <select
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
-                  placeholder="Enter city"
-                  className="w-full px-4 py-3 bg-input border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                />
+                  disabled={!formData.district}
+                  className="w-full px-4 py-3 bg-input border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">{formData.district ? 'Select City' : 'Select District First'}</option>
+                  {availableCities.map(city => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="md:col-span-2">
