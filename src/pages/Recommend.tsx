@@ -25,30 +25,99 @@ export default function Recommend() {
 
     if (!soilType || !region || !district || !city || !season) {
       setRecommendation({
-        crop: 'Please fill all fields',
-        details: 'All selections are required to provide a specific recommendation.'
+        crops: [{ name: 'Please fill all fields', details: 'All selections are required to provide specific recommendations.' }]
       });
       return;
     }
 
-    let recommendedCrop = 'Sugarcane';
-    let details = 'Consider Sugarcane or other versatile crops suitable for your general region.';
+    const recommendations: { name: string; details: string }[] = [];
 
-    if (soilType === 'clay' && (region === 'south' || region === 'east') && season === 'kharif') {
-      recommendedCrop = 'Rice (Paddy)';
-      details = 'Clay soil is perfect for retaining the large amount of water needed for Rice cultivation during the monsoon (Kharif) season.';
-    } else if ((soilType === 'loamy' || soilType === 'sandy') && region === 'north' && season === 'rabi') {
-      recommendedCrop = 'Wheat';
-      details = 'Requires moderate temperature and irrigation. Ideal Rabi crop for loamy/sandy soils in the Northern plains.';
-    } else if ((soilType === 'sandy' || soilType === 'loamy') && region === 'west' && season === 'kharif') {
-      recommendedCrop = 'Bajra (Pearl Millet)';
-      details = 'Drought-tolerant, fast-growing crop ideal for semi-arid Western regions during the monsoon.';
-    } else if (soilType === 'loamy' && region === 'west' && season === 'kharif') {
-      recommendedCrop = 'Cotton';
-      details = 'Grows well in well-drained loamy soil. Requires a long frost-free period and bright sunshine.';
+    // Kharif Season Crops
+    if (season === 'kharif') {
+      if (soilType === 'clay' && (region === 'south' || region === 'east')) {
+        recommendations.push({ name: 'Rice (Paddy)', details: 'Clay soil retains water perfectly for Rice cultivation during monsoon season.' });
+      }
+      if (soilType === 'clay' && region === 'east') {
+        recommendations.push({ name: 'Jute', details: 'Thrives in humid climate with clay soil. Major fiber crop of Eastern India.' });
+      }
+      if ((soilType === 'sandy' || soilType === 'loamy') && region === 'west') {
+        recommendations.push({ name: 'Bajra (Pearl Millet)', details: 'Drought-tolerant, fast-growing crop ideal for semi-arid Western regions.' });
+        recommendations.push({ name: 'Jowar (Sorghum)', details: 'Excellent drought resistance. Grows well in low rainfall areas.' });
+      }
+      if (soilType === 'loamy' && (region === 'west' || region === 'south')) {
+        recommendations.push({ name: 'Cotton', details: 'Requires well-drained loamy soil, long frost-free period and bright sunshine.' });
+      }
+      if (soilType === 'black' && (region === 'west' || region === 'south')) {
+        recommendations.push({ name: 'Soybean', details: 'Black soil provides excellent nutrients. High protein oilseed crop.' });
+        recommendations.push({ name: 'Groundnut', details: 'Well-suited for black soil. Important oilseed crop with good returns.' });
+      }
+      if (soilType === 'loamy' && region === 'north') {
+        recommendations.push({ name: 'Maize', details: 'Versatile crop that grows well in loamy soil with adequate rainfall.' });
+        recommendations.push({ name: 'Sugarcane', details: 'Requires abundant water and fertile loamy soil. High-value cash crop.' });
+      }
+      if (region === 'south') {
+        recommendations.push({ name: 'Ragi (Finger Millet)', details: 'Nutritious millet crop well-suited for Southern Indian climate.' });
+        recommendations.push({ name: 'Turmeric', details: 'Spice crop that thrives in warm, humid conditions of South India.' });
+      }
+      if (soilType === 'sandy' && region === 'east') {
+        recommendations.push({ name: 'Sesame', details: 'Drought-tolerant oilseed crop suitable for sandy soils.' });
+      }
     }
 
-    setRecommendation({ crop: recommendedCrop, details });
+    // Rabi Season Crops
+    if (season === 'rabi') {
+      if ((soilType === 'loamy' || soilType === 'sandy') && region === 'north') {
+        recommendations.push({ name: 'Wheat', details: 'Ideal Rabi crop for Northern plains. Requires moderate temperature and irrigation.' });
+      }
+      if (soilType === 'loamy' && (region === 'north' || region === 'west')) {
+        recommendations.push({ name: 'Chickpea (Gram)', details: 'Protein-rich pulse crop. Grows well in cool, dry conditions.' });
+        recommendations.push({ name: 'Mustard', details: 'Important oilseed crop for Rabi season. Requires cool climate.' });
+      }
+      if (soilType === 'clay' && region === 'south') {
+        recommendations.push({ name: 'Lentil (Masoor)', details: 'Nutritious pulse crop suited for clay soils in cooler months.' });
+      }
+      if (region === 'north' || region === 'west') {
+        recommendations.push({ name: 'Barley', details: 'Hardy cereal crop tolerant to drought and salinity. Good for brewing and fodder.' });
+        recommendations.push({ name: 'Peas', details: 'Cool-season vegetable crop with high nutritional value.' });
+      }
+      if (soilType === 'black' && region === 'west') {
+        recommendations.push({ name: 'Safflower', details: 'Oilseed crop well-suited for black soil in semi-arid regions.' });
+      }
+      if (soilType === 'loamy' && region === 'south') {
+        recommendations.push({ name: 'Sunflower', details: 'High-yielding oilseed crop adaptable to various conditions.' });
+        recommendations.push({ name: 'Coriander', details: 'Spice crop that grows well in mild winter conditions.' });
+      }
+      if (region === 'east') {
+        recommendations.push({ name: 'Potato', details: 'Major vegetable crop for Rabi season. Requires well-drained soil.' });
+        recommendations.push({ name: 'Onion', details: 'Cash crop with good storage potential. Grows well in winter.' });
+      }
+    }
+
+    // Zaid Season Crops
+    if (season === 'zaid') {
+      recommendations.push({ name: 'Watermelon', details: 'Summer fruit crop requiring warm temperatures and adequate irrigation.' });
+      recommendations.push({ name: 'Muskmelon', details: 'Sweet fruit crop ideal for hot summer conditions.' });
+      recommendations.push({ name: 'Cucumber', details: 'Fast-growing vegetable crop for summer season.' });
+      if (soilType === 'sandy' || soilType === 'loamy') {
+        recommendations.push({ name: 'Moong (Green Gram)', details: 'Short-duration pulse crop. Nitrogen-fixing and soil-enriching.' });
+        recommendations.push({ name: 'Urad (Black Gram)', details: 'Protein-rich pulse suitable for hot and humid conditions.' });
+      }
+      if (region === 'north' || region === 'west') {
+        recommendations.push({ name: 'Bitter Gourd', details: 'Medicinal vegetable crop with good market demand.' });
+        recommendations.push({ name: 'Bottle Gourd', details: 'Popular summer vegetable with high water content.' });
+      }
+      if (soilType === 'loamy') {
+        recommendations.push({ name: 'Fodder Crops', details: 'Grow fodder like Berseem or Lucerne for livestock during lean period.' });
+      }
+    }
+
+    // Default if no specific matches
+    if (recommendations.length === 0) {
+      recommendations.push({ name: 'Sugarcane', details: 'Versatile cash crop suitable for most regions with adequate water.' });
+      recommendations.push({ name: 'Vegetables', details: 'Consider seasonal vegetables like tomatoes, brinjal, or okra based on local demand.' });
+    }
+
+    setRecommendation({ crops: recommendations });
   };
 
   return (
@@ -172,12 +241,23 @@ export default function Recommend() {
             <div className="card-3d animate-scale-in bg-gradient-to-br from-primary/5 to-secondary/5">
               <h3 className="text-2xl font-semibold mb-6 text-primary flex items-center gap-2">
                 <Sprout className="w-6 h-6" />
-                Recommended Crop
+                Recommended Crops ({recommendation.crops.length})
               </h3>
               
-              <div className="bg-white/80 rounded-2xl p-6 mb-4">
-                <h4 className="text-3xl font-bold text-primary mb-2">{recommendation.crop}</h4>
-                <p className="text-muted-foreground leading-relaxed">{recommendation.details}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {recommendation.crops.map((crop: { name: string; details: string }, index: number) => (
+                  <div 
+                    key={index} 
+                    className="bg-white/80 dark:bg-card/80 rounded-2xl p-5 border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <h4 className="text-xl font-bold text-primary mb-2 flex items-center gap-2">
+                      <Leaf className="w-5 h-5" />
+                      {crop.name}
+                    </h4>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{crop.details}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}
