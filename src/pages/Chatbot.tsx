@@ -217,7 +217,7 @@ export default function Chatbot() {
             </div>
 
             {/* Input Area */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 relative z-10">
               <input
                 type="text"
                 value={message}
@@ -228,9 +228,10 @@ export default function Chatbot() {
                 className="flex-1 px-6 py-4 bg-input border border-border rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-50"
               />
               <button
+                type="button"
                 onClick={handleSendMessage}
                 disabled={isLoading || !message.trim()}
-                className="btn-3d gradient-primary text-white px-8 py-4 rounded-2xl font-semibold flex items-center gap-2 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="gradient-primary text-white px-8 py-4 rounded-2xl font-semibold flex items-center gap-2 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed relative z-20"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
