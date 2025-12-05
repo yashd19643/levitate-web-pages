@@ -1,14 +1,37 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ParticleBackground from '@/components/ParticleBackground';
 import Navigation from '@/components/Navigation';
-import { Droplets, Thermometer, Cloud, Activity, Power, Sparkles } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Droplets, Thermometer, Cloud, Activity, Power, Sparkles, MapPin, User, AlertCircle } from 'lucide-react';
+
+// City-specific irrigation data
+const CITY_IRRIGATION_DATA: Record<string, { moisture: number; temperature: number; rainfall: number; humidity: number; recommendation: string }> = {
+  'Mumbai': { moisture: 75, temperature: 30, rainfall: 25, humidity: 85, recommendation: 'High humidity detected. Reduce irrigation frequency to prevent waterlogging.' },
+  'Delhi': { moisture: 45, temperature: 38, rainfall: 5, humidity: 55, recommendation: 'Hot and dry conditions. Increase irrigation frequency and consider drip irrigation.' },
+  'Bangalore': { moisture: 60, temperature: 26, rainfall: 15, humidity: 70, recommendation: 'Moderate conditions. Maintain current irrigation schedule.' },
+  'Hyderabad': { moisture: 50, temperature: 34, rainfall: 8, humidity: 60, recommendation: 'Warm weather. Consider early morning irrigation to reduce evaporation.' },
+  'Chennai': { moisture: 55, temperature: 32, rainfall: 12, humidity: 78, recommendation: 'High humidity. Monitor soil moisture before irrigating.' },
+  'Kolkata': { moisture: 70, temperature: 31, rainfall: 20, humidity: 82, recommendation: 'Humid conditions. Reduce irrigation to prevent root rot.' },
+  'Pune': { moisture: 58, temperature: 28, rainfall: 18, humidity: 65, recommendation: 'Good growing conditions. Maintain regular irrigation schedule.' },
+  'Ahmedabad': { moisture: 40, temperature: 36, rainfall: 3, humidity: 50, recommendation: 'Very dry conditions. Increase irrigation significantly and use mulching.' },
+  'Jaipur': { moisture: 35, temperature: 37, rainfall: 2, humidity: 45, recommendation: 'Desert climate. Heavy irrigation needed. Consider shade structures.' },
+  'Lucknow': { moisture: 52, temperature: 33, rainfall: 10, humidity: 62, recommendation: 'Moderate heat. Water crops during cooler parts of the day.' },
+};
+
+const DEFAULT_DATA = { moisture: 55, temperature: 30, rainfall: 10, humidity: 65, recommendation: 'Maintain standard irrigation practices based on crop requirements.' };
 
 export default function Irrigation() {
+  const { user, profile, loading } = useAuth();
+  const navigate = useNavigate();
+  
+  const cityData = profile?.city ? (CITY_IRRIGATION_DATA[profile.city] || DEFAULT_DATA) : DEFAULT_DATA;
+  
   const [sensorData, setSensorData] = useState({
-    moisture: 65,
-    temperature: 28,
-    rainfall: 15,
-    humidity: 72,
+    moisture: cityData.moisture,
+    temperature: cityData.temperature,
+    rainfall: cityData.rainfall,
+    humidity: cityData.humidity,
   });
 
   const [manualControl, setManualControl] = useState({
@@ -17,23 +40,45 @@ export default function Irrigation() {
     pump3: false
   });
 
+  // Update sensor data when profile changes
   useEffect(() => {
-    // Simulate sensor data updates
+    if (profile?.city) {
+      const data = CITY_IRRIGATION_DATA[profile.city] || DEFAULT_DATA;
+      setSensorData({
+        moisture: data.moisture,
+        temperature: data.temperature,
+        rainfall: data.rainfall,
+        humidity: data.humidity,
+      });
+    }
+  }, [profile?.city]);
+
+  useEffect(() => {
+    // Simulate sensor data updates with city-specific baseline
     const interval = setInterval(() => {
+      const baseData = profile?.city ? (CITY_IRRIGATION_DATA[profile.city] || DEFAULT_DATA) : DEFAULT_DATA;
       setSensorData(prev => ({
-        moisture: Math.max(30, Math.min(90, prev.moisture + (Math.random() - 0.5) * 5)),
-        temperature: Math.max(20, Math.min(40, prev.temperature + (Math.random() - 0.5) * 2)),
-        rainfall: Math.max(0, Math.min(50, prev.rainfall + (Math.random() - 0.5) * 5)),
-        humidity: Math.max(40, Math.min(95, prev.humidity + (Math.random() - 0.5) * 3)),
+        moisture: Math.max(30, Math.min(90, baseData.moisture + (Math.random() - 0.5) * 10)),
+        temperature: Math.max(20, Math.min(45, baseData.temperature + (Math.random() - 0.5) * 4)),
+        rainfall: Math.max(0, Math.min(50, baseData.rainfall + (Math.random() - 0.5) * 5)),
+        humidity: Math.max(40, Math.min(95, baseData.humidity + (Math.random() - 0.5) * 6)),
       }));
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [profile?.city]);
 
   const togglePump = (pump: keyof typeof manualControl) => {
     setManualControl(prev => ({ ...prev, [pump]: !prev[pump] }));
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-12 relative">
@@ -49,6 +94,38 @@ export default function Irrigation() {
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-500 to-primary bg-clip-text text-transparent">
             Irrigation Management
           </h1>
+          
+          {/* City-specific header */}
+          {profile?.city ? (
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <MapPin className="w-5 h-5 text-primary" />
+              <span className="text-xl font-semibold text-primary">{profile.city}</span>
+              <span className="text-muted-foreground">- Personalized for your location</span>
+            </div>
+          ) : user ? (
+            <div className="flex items-center justify-center gap-2 mb-4 text-amber-500">
+              <AlertCircle className="w-5 h-5" />
+              <span>Complete your profile to get location-specific data</span>
+              <button 
+                onClick={() => navigate('/')}
+                className="underline hover:text-amber-400"
+              >
+                Add City
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-2 mb-4 text-amber-500">
+              <User className="w-5 h-5" />
+              <span>Login to get personalized irrigation data for your city</span>
+              <button 
+                onClick={() => navigate('/auth')}
+                className="underline hover:text-amber-400"
+              >
+                Login
+              </button>
+            </div>
+          )}
+          
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Smart irrigation scheduling with real-time weather monitoring and automated control systems
           </p>
@@ -77,7 +154,7 @@ export default function Irrigation() {
               <div className="mt-4 h-2 bg-muted rounded-full overflow-hidden">
                 <div 
                   className={`h-full ${item.color.replace('text-', 'bg-')} transition-all duration-500`}
-                  style={{ width: `${item.label === 'Temperature' ? (sensorData.temperature / 40) * 100 : 
+                  style={{ width: `${item.label === 'Temperature' ? (sensorData.temperature / 45) * 100 : 
                                    item.label === 'Soil Moisture' ? sensorData.moisture :
                                    item.label === 'Rainfall' ? (sensorData.rainfall / 50) * 100 : 
                                    sensorData.humidity}%` }}
@@ -168,15 +245,24 @@ export default function Irrigation() {
           </div>
         </div>
 
-        {/* Recommendations */}
+        {/* Smart Recommendations */}
         <div className="mt-8 card-3d animate-scale-in" style={{ animationDelay: '200ms' }}>
-          <h3 className="text-2xl font-semibold mb-4">Smart Recommendations</h3>
+          <h3 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-primary" />
+            Smart Recommendations
+            {profile?.city && (
+              <span className="text-sm font-normal text-muted-foreground ml-2">
+                for {profile.city}
+              </span>
+            )}
+          </h3>
           <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-6">
             <p className="text-lg">
-              💡 Based on current soil moisture ({sensorData.moisture.toFixed(1)}%) and weather conditions, 
-              it's recommended to {sensorData.moisture < 50 ? 
-                'increase irrigation frequency' : 
-                'maintain current irrigation schedule'}.
+              💡 {profile?.city ? (CITY_IRRIGATION_DATA[profile.city]?.recommendation || DEFAULT_DATA.recommendation) : (
+                sensorData.moisture < 50 ? 
+                  'Based on current soil moisture, increase irrigation frequency.' : 
+                  'Maintain current irrigation schedule.'
+              )}
             </p>
           </div>
         </div>
