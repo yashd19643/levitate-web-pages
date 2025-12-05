@@ -1,11 +1,28 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import ThreeScene from '@/components/ThreeScene';
 import Navigation from '@/components/Navigation';
 import AnimatedCounter from '@/components/AnimatedCounter';
 import ScrollReveal from '@/components/ScrollReveal';
-import { Sprout, Shield, Droplets, MessageSquare, TrendingUp, Leaf, ArrowRight, Star } from 'lucide-react';
+import UserDetailsModal from '@/components/UserDetailsModal';
+import { useAuth } from '@/contexts/AuthContext';
+import { Sprout, Shield, Droplets, MessageSquare, TrendingUp, Leaf, ArrowRight, Star, LogIn, User } from 'lucide-react';
 
 export default function Home() {
+  const { user, profile, signOut } = useAuth();
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (!user) {
+      navigate('/auth');
+    } else if (!profile) {
+      setShowDetailsModal(true);
+    } else {
+      navigate('/irrigation');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <Navigation />
@@ -23,6 +40,23 @@ export default function Home() {
         
         <div className="container relative z-10 px-4">
           <div className="glass-effect max-w-5xl mx-auto rounded-3xl p-8 md:p-16 text-center">
+            {/* User Status */}
+            {user && (
+              <div className="absolute top-4 right-4 flex items-center gap-3">
+                {profile && (
+                  <span className="text-sm text-muted-foreground">
+                    Welcome, <span className="text-primary font-medium">{profile.name}</span>
+                  </span>
+                )}
+                <button
+                  onClick={() => signOut()}
+                  className="text-sm text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
+
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-6 animate-fade-in">
               <Star className="w-4 h-4 text-primary fill-primary" />
               <span className="text-sm font-medium text-primary">AI-Powered Agriculture</span>
@@ -36,14 +70,28 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-scale-in">
-              <Link 
-                to="/recommend" 
+              <button 
+                onClick={handleGetStarted}
                 className="btn-3d group inline-flex items-center gap-3 gradient-primary text-white px-8 py-5 rounded-2xl text-lg font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all"
               >
-                <Sprout className="w-6 h-6" />
-                Get Started
+                {!user ? (
+                  <>
+                    <LogIn className="w-6 h-6" />
+                    Login to Get Started
+                  </>
+                ) : !profile ? (
+                  <>
+                    <User className="w-6 h-6" />
+                    Complete Profile
+                  </>
+                ) : (
+                  <>
+                    <Sprout className="w-6 h-6" />
+                    Go to Irrigation
+                  </>
+                )}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </button>
               <Link 
                 to="/chatbot" 
                 className="btn-3d inline-flex items-center gap-3 bg-white/80 backdrop-blur text-foreground px-8 py-5 rounded-2xl text-lg font-semibold border-2 border-border hover:border-primary transition-all"
@@ -210,19 +258,26 @@ export default function Home() {
                 <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
                   Join thousands of farmers already using Agri-Saarthi to increase yields and reduce costs
                 </p>
-                <Link 
-                  to="/recommend" 
+                <button 
+                  onClick={handleGetStarted}
                   className="btn-3d inline-flex items-center gap-3 gradient-primary text-white px-10 py-6 rounded-2xl text-xl font-semibold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all"
                 >
                   <Sprout className="w-6 h-6" />
                   Start Now - It's Free
                   <ArrowRight className="w-5 h-5" />
-                </Link>
+                </button>
               </div>
             </div>
           </ScrollReveal>
         </div>
       </section>
+
+      {/* User Details Modal */}
+      <UserDetailsModal 
+        open={showDetailsModal} 
+        onOpenChange={setShowDetailsModal}
+        onSuccess={() => navigate('/irrigation')}
+      />
     </div>
   );
 }
